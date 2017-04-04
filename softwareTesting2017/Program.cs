@@ -10,8 +10,7 @@ namespace softwareTesting2017
     {
         static void Main(string[] args)
         {
-            //Test Committ & Push
-
+            
         }
     }
 }
