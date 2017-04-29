@@ -10,16 +10,16 @@ namespace softwareTesting2017
     {
         static void Main(string[] args)
         {
-            int seed = 0; //Int16.Parse(args[0]);
+            int seed = 2; //Int16.Parse(args[0]);
 
             Simulation mySim = new Simulation(seed);
             mySim.startSimulation();
 
             Console.WriteLine(mySim.getFinalResult());
-            
 
 
             
+
 
 
 
@@ -47,16 +47,16 @@ namespace softwareTesting2017
                 {"notConnected", "Tomoana Rd", "Southampton St", "notConnected", "Railway Rd"}
         };
 
-        int seed;
         Driver[] drivers = new Driver[5];
         string completeSimulation = "";
+        Random rand;
 
 
 
 
         public Simulation(int seed)
         {
-            this.seed = seed;
+            this.rand = new Random(seed);
             drivers[0] = new Driver("Driver 1");
             drivers[1] = new Driver("Driver 2");
             drivers[2] = new Driver("Driver 3");
@@ -66,22 +66,31 @@ namespace softwareTesting2017
 
         public void startSimulation()
         {
+            int nextLocation;         
+
             for(int x = 0; x < drivers.Length; x++)
             {
-                drivers[x].startLocation(randomNumber());
-                completeSimulation += drivers[x].getName() + "\n";
-                completeSimulation += "Start location " + drivers[x].getStartLocation() + "\n";
-                completeSimulation += "Next location " + drivers[x].drive(adjMatrix, randomNumber())[0] + "\n";
-                completeSimulation += "via " + drivers[x].drive(adjMatrix, randomNumber())[1] + "\n" + "\n";
+                drivers[x].startLocation(nextRandom(3));
 
+                for (int i = 0; i < 10; i++)
+                {
+                    
+                    completeSimulation += drivers[x].getName() + "\n";
+                    completeSimulation += "Start location " + drivers[x].getStartLocation() + "\n";
+                    completeSimulation += "Next location " + drivers[x].drive(adjMatrix, nextRandom(4))[0] + "\n";
+                    completeSimulation += "via " + drivers[x].drive(adjMatrix, nextRandom(4))[1] + "\n" + "\n";
+                   
+                    
+                }
+
+
+                
             }
         }
 
-
-        public int randomNumber()
+        public int nextRandom(int max)
         {
-            int nextRandom = 0;
-            return nextRandom;
+            return rand.Next(0, max);
         }
 
 
@@ -137,7 +146,7 @@ namespace softwareTesting2017
         public string[] drive(string[,] matrix, int randomNumber)
         {
             string[] newLocation = new string[2];
-            int[] possiblePaths = new int[3];
+            int[] possiblePaths = new int[5];
             int index = 0;
 
             for (int i = 0; i < matrix.GetLength(1); i++)
