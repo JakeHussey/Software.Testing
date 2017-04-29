@@ -10,36 +10,19 @@ namespace softwareTesting2017
     {
         static void Main(string[] args)
         {
-            //int seed = Int16.Parse(args[0]);
+            int seed = 0; //Int16.Parse(args[0]);
 
-            Simulation mySim = new Simulation();
+            Simulation mySim = new Simulation(seed);
+            mySim.startSimulation();
 
-
-            /*
-             * 0 = Mayfair
-             * 1 = Mahora
-             * 2 = Akina
-             * 3 = Stortford Lodge
-             * 4 = Outside City
-             * 
-             * Matrix of streets and roads connecting locations and outside city
-             * */
-            string[,] adjMatrix = new string[4, 5]
-            {
-                {"notConnected", "Frederick St", "Willowpark Rd", "notConnected", "Karamu Rd"},
-                {"Frederick St", "notConnected", "notConnected", "Tomoana Rd", "Omahu Rd"},
-                {"Willowpark Rd", "notConnected", "notConnected", "Southampton St", "Havelock Rd"},
-                {"notConnected", "Tomoana Rd", "Southampton St", "notConnected", "Railway Rd"}
-            };
+            Console.WriteLine(mySim.getFinalResult());
+            
 
 
-            int startLoc = mySim.startLocation();
+            
 
-            Console.WriteLine("Go from " + mySim.locationString(startLoc));
 
-            //mySim.path(startLocation, matrix, randomNumber for picking next location) array element
-            Console.WriteLine("to " + mySim.path(startLoc, adjMatrix, 2)[0]);
-            Console.WriteLine("via " + mySim.path(startLoc, adjMatrix, 2)[1]);
+
 
             //hold console open
             Console.ReadLine();
@@ -53,15 +36,105 @@ namespace softwareTesting2017
 
     class Simulation
     {
-        public int startLocation()
+        
+        //Matrix of streets and roads connecting locations and outside city
+        string[,] adjMatrix = new string[4, 5]
         {
-            return 0;
+                //{Mayfair, Mahora, Akina, Stortford Lodge, Outside City}
+                {"notConnected", "Frederick St", "Willowpark Rd", "notConnected", "Karamu Rd"},
+                {"Frederick St", "notConnected", "notConnected", "Tomoana Rd", "Omahu Rd"},
+                {"Willowpark Rd", "notConnected", "notConnected", "Southampton St", "Havelock Rd"},
+                {"notConnected", "Tomoana Rd", "Southampton St", "notConnected", "Railway Rd"}
+        };
+
+        int seed;
+        Driver[] drivers = new Driver[5];
+        string completeSimulation = "";
+
+
+
+
+        public Simulation(int seed)
+        {
+            this.seed = seed;
+            drivers[0] = new Driver("Driver 1");
+            drivers[1] = new Driver("Driver 2");
+            drivers[2] = new Driver("Driver 3");
+            drivers[3] = new Driver("Driver 4");
+            drivers[4] = new Driver("Driver 5");
+        }
+
+        public void startSimulation()
+        {
+            for(int x = 0; x < drivers.Length; x++)
+            {
+                drivers[x].startLocation(randomNumber());
+                completeSimulation += drivers[x].getName() + "\n";
+                completeSimulation += "Start location " + drivers[x].getStartLocation() + "\n";
+                completeSimulation += "Next location " + drivers[x].drive(adjMatrix, randomNumber())[0] + "\n";
+                completeSimulation += "via " + drivers[x].drive(adjMatrix, randomNumber())[1] + "\n" + "\n";
+
+            }
+        }
+
+
+        public int randomNumber()
+        {
+            int nextRandom = 0;
+            return nextRandom;
+        }
+
+
+        public string getFinalResult()
+        {
+            return completeSimulation;
+        }
+
+
+        
+
+
+        
+    }
+
+
+
+
+
+
+
+    class Driver
+    {
+        string name;
+        int currentLocation;
+
+
+
+        public Driver(string name)
+        {
+            this.name = name;
+        }
+
+        public void startLocation(int randomNumber)
+        {
+            this.currentLocation = randomNumber;
+        }
+
+
+        public string getName()
+        {
+            return name;
+        }
+
+        public string getStartLocation()
+        {
+            return locationString(currentLocation);
         }
 
 
 
         //Pick a new location and a path to that location
-        public string[] path(int currentLocation, string[,] matrix, int randomNumber)
+        public string[] drive(string[,] matrix, int randomNumber)
         {
             string[] newLocation = new string[2];
             int[] possiblePaths = new int[3];
@@ -117,6 +190,9 @@ namespace softwareTesting2017
 
             return stringLocation;
         }
+
+
+        
     }
 }
 
