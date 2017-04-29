@@ -11,117 +11,115 @@ namespace softwareTesting2017
         static void Main(string[] args)
         {
             //int seed = Int16.Parse(args[0]);
-            AdjacencyList locationAdjacency = new AdjacencyList(4);
-            Simulation mySim = new Simulation(locationAdjacency);    
+
+            Simulation mySim = new Simulation();
+
+
+            /*
+             * 0 = Mayfair
+             * 1 = Mahora
+             * 2 = Akina
+             * 3 = Stortford Lodge
+             * 4 = Outside City
+             * 
+             * Matrix of streets and roads connecting locations and outside city
+             * */
+            string[,] adjMatrix = new string[4, 5]
+            {
+                {"notConnected", "Frederick St", "Willowpark Rd", "notConnected", "Karamu Rd"},
+                {"Frederick St", "notConnected", "notConnected", "Tomoana Rd", "Omahu Rd"},
+                {"Willowpark Rd", "notConnected", "notConnected", "Southampton St", "Havelock Rd"},
+                {"notConnected", "Tomoana Rd", "Southampton St", "notConnected", "Railway Rd"}
+            };
+
+
+            int startLoc = mySim.startLocation();
+
+            Console.WriteLine("Go from " + mySim.locationString(startLoc));
+
+            //mySim.path(startLocation, matrix, randomNumber for picking next location) array element
+            Console.WriteLine("to " + mySim.path(startLoc, adjMatrix, 2)[0]);
+            Console.WriteLine("via " + mySim.path(startLoc, adjMatrix, 2)[1]);
+
+            //hold console open
+            Console.ReadLine();
+
+
         }
+
+
     }
 
-    class AdjacencyList
-    {
-        LinkedList<Tuple<int, int>>[] adjacencyList;
-
-        // Constructor - creates an empty Adjacency List
-        public AdjacencyList(int vertices)
-        {
-            adjacencyList = new LinkedList<Tuple<int, int>>[vertices];
-
-            for (int i = 0; i < adjacencyList.Length; ++i)
-            {
-                adjacencyList[i] = new LinkedList<Tuple<int, int>>();
-            }
-        }
-
-        // Appends a new Edge to the linked list
-        public void addEdgeAtEnd(int startVertex, int endVertex, int weight)
-        {
-            adjacencyList[startVertex].AddLast(new Tuple<int, int>(endVertex, weight));
-        }
-
-        // Adds a new Edge to the linked list from the front
-        public void addEdgeAtBegin(int startVertex, int endVertex, int weight)
-        {
-            adjacencyList[startVertex].AddFirst(new Tuple<int, int>(endVertex, weight));
-        }
-
-        // Returns number of vertices
-        // Does not change for an object
-        public int getNumberOfVertices()
-        {
-            return adjacencyList.Length;
-        }
-
-        // Returns a copy of the Linked List of outward edges from a vertex
-        public LinkedList<Tuple<int, int>> this[int index]
-        {
-            get
-            {
-                LinkedList<Tuple<int, int>> edgeList
-                               = new LinkedList<Tuple<int, int>>(adjacencyList[index]);
-
-                return edgeList;
-            }
-        }
-
-        // Prints the Adjacency List
-        public void printAdjacencyList()
-        {
-            int i = 0;
-
-            foreach (LinkedList<Tuple<int, int>> list in adjacencyList)
-            {
-                Console.Write("adjacencyList[" + i + "] -> ");
-
-                foreach (Tuple<int, int> edge in list)
-                {
-                    Console.Write(edge.Item1 + "(" + edge.Item2 + ")");
-                }
-
-                ++i;
-                Console.WriteLine();
-            }
-        }
-
-        // Removes the first occurence of an edge and returns true
-        // if there was any change in the collection, else false
-        public bool removeEdge(int startVertex, int endVertex, int weight)
-        {
-            Tuple<int, int> edge = new Tuple<int, int>(endVertex, weight);
-
-            return adjacencyList[startVertex].Remove(edge);
-        }
-    }
 
     class Simulation
     {
-        //private string[] locations = new string[] {"Mayfair", "Akina", "Stortford Lodge", "Mahora", "Outside City"};
-        //private string[] exits = new string[] { "Karamu Road", "Havelock Road", "Railway Road", "Omahu Road" };
-        //private int[] drivers = new int[5] { 1, 2, 3, 4, 5 };
-        //private int akinaCount = 0;
-        public Simulation(AdjacencyList myList)
+        public int startLocation()
         {
-            /* 0 = Mayfair
-            * 1 = Akina
-            * 2 = Stortford Lodge
-            * 3 = Mahora */
-            
-            myList.addEdgeAtBegin(0, 1, 0);
-            myList.addEdgeAtBegin(0, 3, 1);
-            myList.addEdgeAtBegin(1, 0, 2);
-            myList.addEdgeAtBegin(1, 2, 3);
-            myList.addEdgeAtBegin(2, 1, 4);
-            myList.addEdgeAtBegin(2, 3, 5);
-            myList.addEdgeAtBegin(3, 0, 6);
-            myList.addEdgeAtBegin(3, 2, 7);
-            myList.printAdjacencyList();
+            return 0;
         }
 
 
-        //Generates a random number from a provided seed
-        public int randomNumberGenerator()
+
+        //Pick a new location and a path to that location
+        public string[] path(int currentLocation, string[,] matrix, int randomNumber)
         {
-            int randomNumber = 0;
-            return randomNumber;
+            string[] newLocation = new string[2];
+            int[] possiblePaths = new int[3];
+            int index = 0;
+
+            for (int i = 0; i < matrix.GetLength(1); i++)
+            {
+                if (matrix[currentLocation, i] != "notConnected")
+                {
+                    possiblePaths[index] = i;
+                    index++;
+                }
+            }
+
+            newLocation[0] = locationString(possiblePaths[randomNumber]);
+            newLocation[1] = matrix[currentLocation, possiblePaths[randomNumber]];
+
+            return newLocation;
         }
 
+
+        //Convert the location integer to its relative string
+        public string locationString(int location)
+        {
+            string stringLocation;
+
+            switch (location)
+            {
+                case 0:
+                    stringLocation = "Mayfair";
+                    break;
+
+                case 1:
+                    stringLocation = "Mahora";
+                    break;
+
+                case 2:
+                    stringLocation = "Akina";
+                    break;
+
+                case 3:
+                    stringLocation = "Stortford Lodge";
+                    break;
+
+                case 4:
+                    stringLocation = "Outside City";
+                    break;
+
+                default:
+                    stringLocation = "";
+                    break;
+            }
+
+            return stringLocation;
+        }
     }
 }
+
+ 
+
+
