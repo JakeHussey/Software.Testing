@@ -10,11 +10,16 @@ namespace softwareTesting2017
     {
         static void Main(string[] args)
         {
-            int seed = 2; //Int16.Parse(args[0]);
+            int seed = 0; //Int16.Parse(args[0]);
 
+
+            //Construct the simulation with the provided seed
             Simulation mySim = new Simulation(seed);
             mySim.startSimulation();
 
+
+
+            //Write the end results to the console
             Console.WriteLine(mySim.getFinalResult());
 
 
@@ -40,20 +45,21 @@ namespace softwareTesting2017
         //Matrix of streets and roads connecting locations and outside city
         string[,] adjMatrix = new string[4, 5]
         {
-                //{Mayfair, Mahora, Akina, Stortford Lodge, Outside City}
-                {"notConnected", "Frederick St", "Willowpark Rd", "notConnected", "Karamu Rd"},
-                {"Frederick St", "notConnected", "notConnected", "Tomoana Rd", "Omahu Rd"},
-                {"Willowpark Rd", "notConnected", "notConnected", "Southampton St", "Havelock Rd"},
-                {"notConnected", "Tomoana Rd", "Southampton St", "notConnected", "Railway Rd"}
+                      /* {Mayfair}         {Mahora}          {Akina}    {Stortford Lodge} {Outside City} */
+           /*{Mayfair}*/{"notConnected", "Frederick St", "Willowpark Rd", "notConnected", "Karamu Rd"},
+            /*{Mahora}*/{"Frederick St", "notConnected", "notConnected", "Tomoana Rd", "Omahu Rd"},
+             /*{Akina}*/{"Willowpark Rd", "notConnected", "notConnected", "Southampton St", "Havelock Rd"},
+   /*{Stortford Lodge}*/{"notConnected", "Tomoana Rd", "Southampton St", "notConnected", "Railway Rd"}
         };
 
         Driver[] drivers = new Driver[5];
-        string completeSimulation = "";
         Random rand;
+        string completeSimulation = ""; //Output back to Main function
+        
 
 
 
-
+        //Initialize drivers and create a Random from the seed
         public Simulation(int seed)
         {
             this.rand = new Random(seed);
@@ -64,27 +70,38 @@ namespace softwareTesting2017
             drivers[4] = new Driver("Driver 5");
         }
 
-        public void startSimulation()
-        {
-            int nextLocation;         
 
+        //Calls Driver methods and provides "random" numbers
+        public void startSimulation()
+        {        
+            //for each driver
             for(int x = 0; x < drivers.Length; x++)
             {
                 drivers[x].startLocation(nextRandom(3));
+                completeSimulation += drivers[x].getName() + "\n";
+                completeSimulation += "Start location " + drivers[x].getStartLocation() + "\n";
 
+                //Drive to a new location 10 times
                 for (int i = 0; i < 10; i++)
                 {
-                    
-                    completeSimulation += drivers[x].getName() + "\n";
-                    completeSimulation += "Start location " + drivers[x].getStartLocation() + "\n";
-                    completeSimulation += "Next location " + drivers[x].drive(adjMatrix, nextRandom(4))[0] + "\n";
-                    completeSimulation += "via " + drivers[x].drive(adjMatrix, nextRandom(4))[1] + "\n" + "\n";
+                    string[] drive = drivers[x].drive(adjMatrix, nextRandom(3)); //Store drive output so it can be used without calling another random number
+
+                    completeSimulation += "Next location " + drive[0] + "\n";
+                    completeSimulation += "via " + drive[1] + "\n";
+
+                    //Stop if Outside City
+                    if (drive[0] == "Outside City")
+                    {
+                        break;
+                    }
                    
                     
                 }
 
 
-                
+                completeSimulation += "\n";
+
+
             }
         }
 
@@ -115,7 +132,7 @@ namespace softwareTesting2017
     class Driver
     {
         string name;
-        int currentLocation;
+        int currentLocation; //Saves location to provide starting point for each drive
 
 
 
@@ -146,9 +163,12 @@ namespace softwareTesting2017
         public string[] drive(string[,] matrix, int randomNumber)
         {
             string[] newLocation = new string[2];
-            int[] possiblePaths = new int[5];
+            int[] possiblePaths = new int[4];
             int index = 0;
 
+
+
+            //Create an array of possible paths/locations to chose from
             for (int i = 0; i < matrix.GetLength(1); i++)
             {
                 if (matrix[currentLocation, i] != "notConnected")
@@ -158,8 +178,15 @@ namespace softwareTesting2017
                 }
             }
 
+
+            
+            //Randomly select path/location and generate output
             newLocation[0] = locationString(possiblePaths[randomNumber]);
             newLocation[1] = matrix[currentLocation, possiblePaths[randomNumber]];
+
+
+            //Set the current location to the new location for next drive()
+            currentLocation = possiblePaths[randomNumber];
 
             return newLocation;
         }
