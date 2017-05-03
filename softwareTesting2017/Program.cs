@@ -10,7 +10,12 @@ namespace softwareTesting2017
     {
         static void Main(string[] args)
         {
-            int seed = 0; //Int16.Parse(args[0]);
+            Console.WriteLine("Enter a number between 0 and 9999 (inclusive): ");
+
+            //User input seed
+
+            int seed = Int16.Parse(Console.ReadLine());
+
 
 
             //Construct the simulation with the provided seed
@@ -45,11 +50,11 @@ namespace softwareTesting2017
         //Matrix of streets and roads connecting locations and outside city
         string[,] adjMatrix = new string[4, 5]
         {
-                      /* {Mayfair}         {Mahora}          {Akina}    {Stortford Lodge} {Outside City} */
-           /*{Mayfair}*/{"notConnected", "Frederick St", "Willowpark Rd", "notConnected", "Karamu Rd"},
-            /*{Mahora}*/{"Frederick St", "notConnected", "notConnected", "Tomoana Rd", "Omahu Rd"},
-             /*{Akina}*/{"Willowpark Rd", "notConnected", "notConnected", "Southampton St", "Havelock Rd"},
-   /*{Stortford Lodge}*/{"notConnected", "Tomoana Rd", "Southampton St", "notConnected", "Railway Rd"}
+                              /* {Mayfair}         {Mahora}          {Akina}    {Stortford Lodge} {Outside City} */
+                   /*{Mayfair}*/{"notConnected", "Frederick St", "Willowpark Rd", "notConnected", "Karamu Rd"},
+                    /*{Mahora}*/{"Frederick St", "notConnected", "notConnected", "Tomoana Rd", "Omahu Rd"},
+                     /*{Akina}*/{"Willowpark Rd", "notConnected", "notConnected", "Southampton St", "Havelock Rd"},
+           /*{Stortford Lodge}*/{"notConnected", "Tomoana Rd", "Southampton St", "notConnected", "Railway Rd"}
         };
 
         Driver[] drivers = new Driver[5];
@@ -77,12 +82,13 @@ namespace softwareTesting2017
             //for each driver
             for(int x = 0; x < drivers.Length; x++)
             {
+                bool exit = false;
                 drivers[x].startLocation(nextRandom(3));
                 completeSimulation += drivers[x].getName() + "\n";
                 completeSimulation += "Start location " + drivers[x].getStartLocation() + "\n";
 
                 //Drive to a new location 10 times
-                for (int i = 0; i < 10; i++)
+                while (!exit)
                 {
                     string[] drive = drivers[x].drive(adjMatrix, nextRandom(3)); //Store drive output so it can be used without calling another random number
 
@@ -92,7 +98,7 @@ namespace softwareTesting2017
                     //Stop if Outside City
                     if (drive[0] == "Outside City")
                     {
-                        break;
+                        exit = true;
                     }
                    
                     
