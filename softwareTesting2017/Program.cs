@@ -17,15 +17,22 @@ namespace softwareTesting2017
             int seed = Int16.Parse(Console.ReadLine());
 
 
+            Console.Clear();
+
+
 
             //Construct the simulation with the provided seed
             Simulation mySim = new Simulation(seed);
-            mySim.startSimulation();
+
+            for (int y = 0; y < 5; y++)
+            {
+                //start a single iteration with the provided driver
+                Console.WriteLine(mySim.startIteration(y));
+            }
 
 
 
-            //Write the end results to the console
-            Console.WriteLine(mySim.getFinalResult());
+            
 
 
             
@@ -59,7 +66,6 @@ namespace softwareTesting2017
 
         Driver[] drivers = new Driver[5];
         Random rand;
-        string completeSimulation = ""; //Output back to Main function
         
 
 
@@ -76,54 +82,48 @@ namespace softwareTesting2017
         }
 
 
-        //Calls Driver methods and provides "random" numbers
-        public void startSimulation()
-        {        
-            //for each driver
-            for(int x = 0; x < drivers.Length; x++)
+        //Calls Driver methods, provides "random" numbers and assembles returned string
+        public string startIteration(int driver)
+        {
+            string completeIteration = "";
+            bool exit = false;
+            drivers[driver].startLocation(nextRandom(3));
+            completeIteration += drivers[driver].getName() + "\n";
+            completeIteration += "Start location " + drivers[driver].getStartLocation() + "\n";
+
+            //Drive to a new location until Outside City is reached
+            while (!exit)
             {
-                bool exit = false;
-                drivers[x].startLocation(nextRandom(3));
-                completeSimulation += drivers[x].getName() + "\n";
-                completeSimulation += "Start location " + drivers[x].getStartLocation() + "\n";
+                //drive[0] = location     drive[1] = path
+                string[] drive = drivers[driver].drive(adjMatrix, nextRandom(3)); //Store drive output so it can be used without calling another random number
 
-                //Drive to a new location 10 times
-                while (!exit)
+                completeIteration += "Next location " + drive[0] + "\n";
+                completeIteration += "via " + drive[1] + "\n";
+
+                //Stop if Outside City
+                if (drive[0] == "Outside City")
                 {
-                    string[] drive = drivers[x].drive(adjMatrix, nextRandom(3)); //Store drive output so it can be used without calling another random number
-
-                    completeSimulation += "Next location " + drive[0] + "\n";
-                    completeSimulation += "via " + drive[1] + "\n";
-
-                    //Stop if Outside City
-                    if (drive[0] == "Outside City")
-                    {
-                        exit = true;
-                    }
+                    exit = true;
+                }
                    
                     
-                }
-
-
-                completeSimulation += "\n";
-
-
             }
+
+            completeIteration += drivers[driver].getName() + " met with John Jamieson " + drivers[driver].getAkinaCount() + " time(s). \n";
+            completeIteration += drivers[driver].akinaVisits();
+
+            completeIteration += "\n";
+
+            return completeIteration;
+
         }
+
+
 
         public int nextRandom(int max)
         {
             return rand.Next(0, max);
         }
-
-
-        public string getFinalResult()
-        {
-            return completeSimulation;
-        }
-
-
-        
 
 
         
@@ -139,6 +139,7 @@ namespace softwareTesting2017
     {
         string name;
         int currentLocation; //Saves location to provide starting point for each drive
+        int akinaCounter = 0;
 
 
 
@@ -150,6 +151,11 @@ namespace softwareTesting2017
         public void startLocation(int randomNumber)
         {
             this.currentLocation = randomNumber;
+
+            if(locationString(randomNumber) == "Akina")
+            {
+                akinaCounter++;
+            }
         }
 
 
@@ -158,9 +164,16 @@ namespace softwareTesting2017
             return name;
         }
 
+
         public string getStartLocation()
         {
             return locationString(currentLocation);
+        }
+
+
+        public string getAkinaCount()
+        {
+            return akinaCounter.ToString();
         }
 
 
@@ -169,7 +182,7 @@ namespace softwareTesting2017
         public string[] drive(string[,] matrix, int randomNumber)
         {
             string[] newLocation = new string[2];
-            int[] possiblePaths = new int[4];
+            int[] possiblePaths = new int[3];
             int index = 0;
 
 
@@ -184,17 +197,39 @@ namespace softwareTesting2017
                 }
             }
 
-
+            
             
             //Randomly select path/location and generate output
             newLocation[0] = locationString(possiblePaths[randomNumber]);
             newLocation[1] = matrix[currentLocation, possiblePaths[randomNumber]];
+
+            if(newLocation[0] == "Akina")
+            {
+                akinaCounter++;
+            }
 
 
             //Set the current location to the new location for next drive()
             currentLocation = possiblePaths[randomNumber];
 
             return newLocation;
+        }
+
+
+        public string akinaVisits()
+        {
+            string extraLines = "";
+
+            if(akinaCounter == 0)
+            {
+                extraLines += "That passenger missed out! \n";
+            }
+            else if(akinaCounter == 3)
+            {
+                extraLines += "This driver needed lots of help! \n";
+            }
+
+            return extraLines;
         }
 
 
