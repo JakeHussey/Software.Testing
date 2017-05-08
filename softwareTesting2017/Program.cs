@@ -109,7 +109,6 @@ namespace softwareTesting2017
                     
             }
 
-            completeIteration += drivers[driver].getName() + " met with John Jamieson " + drivers[driver].getAkinaCount() + " time(s). \n";
             completeIteration += drivers[driver].akinaVisits();
 
             completeIteration += "\n";
@@ -218,7 +217,7 @@ namespace softwareTesting2017
 
         public string akinaVisits()
         {
-            string extraLines = "";
+            string extraLines = getName() + " met with John Jamieson " + getAkinaCount() + " time(s). \n";
 
             if(akinaCounter == 0)
             {
