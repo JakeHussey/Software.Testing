@@ -2,36 +2,47 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace softwareTesting2017
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
+            int seed = 0;
+
             Console.WriteLine("Enter a number between 0 and 9999 (inclusive): ");
 
-            //User input seed
+            string input = Console.ReadLine();
+            if (input != "" && int.TryParse(input, out seed))
+            {
+                if (seed >= 0 && seed <= 9999)
+                {
+                    Console.Clear();
 
-            int seed = Int16.Parse(Console.ReadLine());
+                    //Construct the simulation with the provided seed
+                    Simulation mySim = new Simulation(seed);
 
+                    //start the driver loop
+                    mySim.startSimulation();
 
-            Console.Clear();
-
-
-
-            //Construct the simulation with the provided seed
-            Simulation mySim = new Simulation(seed);
-
-            //start the driver loop
-            mySim.startSimulation();
-
-
-
-            //hold console open
-            Console.ReadLine();
-
+                    //hold console open
+                    Console.ReadLine();
+                }
+                else
+                {
+                    Console.Error.WriteLine("Error, value either too high or too low.");
+                    Thread.Sleep(3000);
+                    Environment.Exit(0);
+                }
+            }
+            else
+            {
+                Console.Error.WriteLine("Error, value is blank or not a number.");
+                Thread.Sleep(3000);
+                Environment.Exit(0);
+            }
 
         }
 
@@ -39,7 +50,7 @@ namespace softwareTesting2017
     }
 
 
-    class Simulation
+    public class Simulation
     {
         
         //Matrix of streets and roads connecting locations and outside city
@@ -56,6 +67,10 @@ namespace softwareTesting2017
         Random rand;
         
 
+        public string[,] getMatrix()
+        {
+            return adjMatrix;
+        }
 
 
         //Initialize drivers and create a Random from the seed
@@ -144,10 +159,10 @@ namespace softwareTesting2017
 
 
 
-    class Driver
+    public class Driver
     {
         string name;
-        int currentLocation;
+        int currentLocation = -1;
         int akinaCounter = 0;
 
 
@@ -160,12 +175,22 @@ namespace softwareTesting2017
         //Set the drivers starting location
         public void startLocation(int randomNumber)
         {
-            this.currentLocation = randomNumber;
-
-            if(locationToString(randomNumber) == "Akina")
+            if(randomNumber >= 0 && randomNumber <= 4)
             {
-                akinaCounter++;
+                this.currentLocation = randomNumber;
+
+                if (locationToString(randomNumber) == "Akina")
+                {
+                    akinaCounter++;
+                }
             }
+            else
+            {
+                Console.Error.WriteLine("An out of bounds number was used as the startlocation of " + name);
+            }
+            
+
+            
         }
 
 
@@ -186,6 +211,11 @@ namespace softwareTesting2017
             return akinaCounter.ToString();
         }
 
+        public void setAkinaCount(int akinaCount)
+        {
+            this.akinaCounter = akinaCount;
+        }
+
 
 
         //Pick a new location and a path to that location
@@ -196,61 +226,76 @@ namespace softwareTesting2017
             int index = 0;
 
 
-
-            //Create an array of possible paths/locations to chose from
-            for (int i = 0; i < matrix.GetLength(1); i++)
+            if(randomNumber >= 0 && randomNumber <= 3)
             {
-                if (matrix[currentLocation, i] != "notConnected")
+                //Create an array of possible paths/locations to chose from the matrix
+                for (int i = 0; i < matrix.GetLength(1); i++)
                 {
-                    possiblePaths[index] = i;
-                    index++;
+                    if (matrix[currentLocation, i] != "notConnected")
+                    {
+                        possiblePaths[index] = i;
+                        index++;
+                    }
                 }
+
+                //Randomly select path/location and generate output
+                newLocation[0] = locationToString(possiblePaths[randomNumber]);
+                newLocation[1] = matrix[currentLocation, possiblePaths[randomNumber]];
+
+
+                //Other city extra lines
+                if (newLocation[1].Contains("Karamu"))
+                {
+                    newLocation[1] += "\n" + name + " has gone to Napier.";
+                }
+                else if (newLocation[1].Contains("Omahu"))
+                {
+                    newLocation[1] += "\n" + name + " has gone to Flaxmere.";
+                }
+
+
+
+                if (newLocation[0] == "Akina")
+                {
+                    akinaCounter++;
+                }
+
+
+                //Set the current location to the new location for next drive()
+                currentLocation = possiblePaths[randomNumber]; 
+
             }
-
-            
-            
-            //Randomly select path/location and generate output
-            newLocation[0] = locationToString(possiblePaths[randomNumber]);
-            newLocation[1] = matrix[currentLocation, possiblePaths[randomNumber]];
-
-
-            //Other city extra lines
-            if (newLocation[1].Contains("Karamu"))
+            else
             {
-                newLocation[1] += "\n" + name + " has gone to Napier.";
+                Console.Error.WriteLine("An out of bounds number was used at iteration() of " + name);
             }
-            else if (newLocation[1].Contains("Omahu"))
-            {
-                newLocation[1] += "\n" + name + " has gone to Flaxmere.";
-            }
-
-
-
-            if(newLocation[0] == "Akina")
-            {
-                akinaCounter++;
-            }
-
-
-            //Set the current location to the new location for next drive()
-            currentLocation = possiblePaths[randomNumber];
 
             return newLocation;
+
         }
 
 
         //adds extra lines to the console dependant on Akina Visits
         public string akinaVisits()
         {
-            string extraLines = getName() + " met with John Jamieson " + getAkinaCount() + " time(s). \n";
+            string extraLines = "";
 
-            if(akinaCounter == 0)
+            if(Int16.Parse(getAkinaCount()) >= 0)
             {
-                extraLines += "That passenger missed out! \n";
+                extraLines = getName() + " met with John Jamieson " + getAkinaCount() + " time(s). \n";
+
+                if (akinaCounter == 0)
+                {
+                    extraLines += "That passenger missed out! \n";
+                }
+                else if (akinaCounter == 3)
+                {
+                    extraLines += "This driver needed lots of help! \n";
+                }
             }
-            else if(akinaCounter == 3)
+            else
             {
-                extraLines += "This driver needed lots of help! \n";
+                Console.Error.WriteLine("An out of bounds number was used at akinaVisits() of " + name);
             }
 
             return extraLines;
